@@ -11,15 +11,20 @@ f = Fernet(encryption_key)
 decrypted = f.decrypt(encrypted.encode())
 openai.api_key = decrypted.decode()
 
+
 @click.group()
 def commands():
     pass
-
+# Command only option
+# Text to speech
+# History of last N responses
+# 
 @click.command()
 @click.argument("prompt", default="default")
-@click.option("--engine", default="text-ada-001", required=1, help="The engine to use for the AI. (Default: text-davinci-003)")
+@click.option("--engine", default="text-davinci-003", required=1, help="The engine to use for the AI. (Default: text-davinci-003)")
 @click.option("--randomness", default=0.5, required=1, help="The randomness/creativity of the answer. (Default: 0.5)")
-def ask(prompt, engine, randomness):
+@click.option("--word-limit", default=50, help="The word limit of the answer. (Default: 50)")
+def ask(prompt, engine, randomness, word_limit):
     """Prompt for the AI to respond to."""
     if prompt == "default":
         click.echo("Command Help AI Thing is running. Use the --prompt option to prompt the AI to respond to a question.")
@@ -33,6 +38,10 @@ def ask(prompt, engine, randomness):
             temperature=randomness,
         )
         response = completions.choices[0].text
+        word_count = len(response.split())
+        buffer_size = word_limit // 5
+        if word_count > word_limit:
+            response = " ".join(response.split()[:word_limit + buffer_size])
         click.echo(response)
 
 commands.add_command(ask)
