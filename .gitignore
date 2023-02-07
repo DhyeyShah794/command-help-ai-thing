@@ -3,3 +3,6 @@
 /pyvenv.cfg
 bin/
 lib/
+scripts/
+Include/
+Lib/
