@@ -38,13 +38,10 @@ def ask(prompt, engine, randomness, word_limit):
             temperature=randomness,
         )
         response = completions.choices[0].text
-        word_count = len(response.split())
-        buffer_size = word_limit // 5
-        if word_count > word_limit:
-            response = " ".join(response.split()[:word_limit + buffer_size])
         click.echo(response)
 
 commands.add_command(ask)
+
 
 if __name__ == '__main__':
     commands()
