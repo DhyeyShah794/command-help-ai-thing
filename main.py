@@ -4,9 +4,10 @@ import openai
 from dotenv import load_dotenv
 import os
 from firebase_admin import firestore
-from firebase import add_question_answer
+from firebase import save_data
 from session import handle_session
 
+# Fetching and decrypting the API key
 load_dotenv()
 encrypted = os.environ.get('APIKey')
 encryption_key = os.environ.get('EncryptionKey')
@@ -14,6 +15,7 @@ f = Fernet(encryption_key)
 decrypted = f.decrypt(encrypted.encode())
 openai.api_key = decrypted.decode()
 
+# Fetching the session ID and initializing the Firestore database
 session_id = handle_session()
 firestore_db = firestore.client()
 
@@ -21,8 +23,7 @@ firestore_db = firestore.client()
 @click.group()
 def commands():
     pass
-# Command only option
-# Text to speech
+
 
 @click.command()
 @click.argument("prompt", default="default")
@@ -44,7 +45,7 @@ def ask(prompt, engine, randomness, word_limit):
         )
         response = completions.choices[0].text
         click.echo(response)
-        add_question_answer(session_id, prompt, response, engine, randomness)
+        save_data(session_id, prompt, response, engine, randomness)
 
 
 @click.command()
@@ -57,12 +58,16 @@ def history(n, detailed):
         for data in data_list:
             question = data.to_dict()['question']
             click.echo(f"\nQuestion: {question}")
+
             answer = data.to_dict()['answer']
             click.echo(f"Answer: {answer}")
+
             engine = data.to_dict()['engine']
             click.echo(f"\nEngine: {engine}")
+
             randomness = data.to_dict()['randomness']
             click.echo(f"\nRandomness: {randomness}")
+
             timestamp = data.to_dict()['timestamp']
             click.echo(f"\nTimestamp: {timestamp}")
             click.echo("-" * 210)
@@ -71,6 +76,7 @@ def history(n, detailed):
             data_dict = data.to_dict()
             question = data_dict['question']
             click.echo(f"\nQuestion: {question}")
+
             answer = data_dict['answer']
             click.echo(f"\nAnswer: {answer}\n")
             click.echo("-" * 210)
