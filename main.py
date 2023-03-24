@@ -53,7 +53,8 @@ def ask(prompt, engine, randomness, word_limit, top_p, frequency_penalty, presen
         )
 
         response = completions.choices[0].text
-        click.echo(response)
+        click.secho(f"\nAnswer:", fg="yellow")
+        click.secho(f"{response}", fg="green")
         save_data(session_id, prompt, response, engine, randomness)
 
 
