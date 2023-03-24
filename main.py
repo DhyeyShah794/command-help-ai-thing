@@ -30,7 +30,11 @@ def commands():
 @click.option("--engine", default="text-davinci-003", required=1, help="The engine to use for the AI. (Default: text-davinci-003)")
 @click.option("--randomness", default=0.5, required=1, help="The randomness/creativity of the answer. (Default: 0.5)")
 @click.option("--word-limit", default=100, help="The word limit of the answer. (Default: 100)")
-def ask(prompt, engine, randomness, word_limit):
+@click.option("--top-p", default=1, help="The top_p parameter of the OpenAI API. (Default: 1)")
+@click.option("--frequency-penalty", default=0, help="The frequency_penalty parameter of the OpenAI API. (Default: 0)")
+@click.option("--presence-penalty", default=0, help="The presence_penalty parameter of the OpenAI API. (Default: 0)")
+@click.option("--best-of", default=1, help="The best_of parameter of the OpenAI API. (Default: 1)")
+def ask(prompt, engine, randomness, word_limit, top_p, frequency_penalty, presence_penalty, best_of):
     """Enter the prompt for the AI to respond to."""
     if prompt == "default":
         click.echo("Command Help AI Thing is running. Use the --prompt option to ask a question.")
@@ -38,18 +42,16 @@ def ask(prompt, engine, randomness, word_limit):
         completions = openai.Completion.create(
             engine=engine,
             prompt=prompt,
-            max_tokens=100,
+            max_tokens=200,
             n=1,
             stop=None,
             temperature=randomness,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0,
-            best_of=1,
+            top_p=top_p,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            best_of=best_of,
         )
 
-        # Explain the top_p, frequency_penalty, presence_penalty parameters and best_of parameter
-        
         response = completions.choices[0].text
         click.echo(response)
         save_data(session_id, prompt, response, engine, randomness)
@@ -62,12 +64,13 @@ def history(n, detailed):
     """Show the history of previous questions and answers."""
     data_list = list(firestore_db.collection(session_id).order_by('timestamp', direction=firestore.Query.DESCENDING).limit(n).get())
     if detailed:
+        q_count = 1
         for data in data_list:
             question = data.to_dict()['question']
-            click.echo(f"\nQuestion: {question}")
+            click.echo(f"\nQ{q_count}: {question}")
 
             answer = data.to_dict()['answer']
-            click.echo(f"Answer: {answer}")
+            click.echo(f"\nAnswer: {answer}")
 
             engine = data.to_dict()['engine']
             click.echo(f"\nEngine: {engine}")
@@ -78,15 +81,18 @@ def history(n, detailed):
             timestamp = data.to_dict()['timestamp']
             click.echo(f"\nTimestamp: {timestamp}")
             click.echo("-" * 210)
+            q_count += 1
     else:
+        q_count = 1
         for data in data_list:
             data_dict = data.to_dict()
             question = data_dict['question']
-            click.echo(f"\nQuestion: {question}")
+            click.echo(f"\nQ{q_count}: {question}")
 
-            # answer = data_dict['answer']
-            # click.echo(f"\nAnswer: {answer}\n")
+            answer = data_dict['answer']
+            click.echo(f"\nAnswer: {answer}\n")
             click.echo("-" * 210)
+            q_count += 1
 
 
 commands.add_command(ask)
