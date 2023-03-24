@@ -6,3 +6,4 @@ lib/
 scripts/
 Include/
 Lib/
+secret.json

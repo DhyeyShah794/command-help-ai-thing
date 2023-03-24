@@ -42,14 +42,21 @@ def ask(prompt, engine, randomness, word_limit):
             n=1,
             stop=None,
             temperature=randomness,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            best_of=1,
         )
+
+        # Explain the top_p, frequency_penalty, presence_penalty parameters and best_of parameter
+        
         response = completions.choices[0].text
         click.echo(response)
         save_data(session_id, prompt, response, engine, randomness)
 
 
 @click.command()
-@click.argument("n", default=2)
+@click.argument("n", default=10)
 @click.option("--detailed", default=False, help="Show the details of the previous questions and answers.")
 def history(n, detailed):
     """Show the history of previous questions and answers."""
@@ -77,8 +84,8 @@ def history(n, detailed):
             question = data_dict['question']
             click.echo(f"\nQuestion: {question}")
 
-            answer = data_dict['answer']
-            click.echo(f"\nAnswer: {answer}\n")
+            # answer = data_dict['answer']
+            # click.echo(f"\nAnswer: {answer}\n")
             click.echo("-" * 210)
 
 
