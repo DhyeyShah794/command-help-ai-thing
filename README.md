@@ -129,17 +129,3 @@ cd command-help-ai-thing
 pip install -r requirements.txt
 ```
 
----
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request.
-
----
-
-## Contact
-For questions or feedback, feel free to reach out at [your-email@example.com].
